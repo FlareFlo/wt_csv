@@ -19,18 +19,18 @@ impl WTCSV {
 	pub fn new_from_file(file: String) -> Result<Self, String> {
 		let header = Header::from_file(&file)?;
 
-
-
-		// iter.remove(0);
-		// iter.remove(iter.len() - 1);
-
 		let mut wtcsv = Self {
 			base_file: "".to_owned(),
 			header,
 			records: Vec::new(),
 		};
 
-		for record in records {
+		let mut iter = file.clone()
+			.split(RECORD_SEP).map(|x|x.to_owned()).collect::<Vec<String>>();
+		iter.remove(0);
+		iter.remove(iter.len() - 1);
+
+		for record in iter {
 			wtcsv.insert_record(&record)?;
 		}
 
