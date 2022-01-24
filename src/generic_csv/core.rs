@@ -1,6 +1,8 @@
+use std::fmt::format;
+use std::process::exit;
 use crate::generic_csv::header::Header;
 use crate::generic_csv::record::Record;
-use crate::RECORD_SEP;
+use crate::{DELIMITER, RECORD_SEP};
 
 #[derive(Debug)]
 pub struct WTCSV {
@@ -56,7 +58,7 @@ mod tests {
 
 	#[test]
 	fn test_core_insert() {
-		let mut file = fs::read_to_string("lang/units.csv").unwrap();
+		let file = fs::read_to_string("lang/units.csv").unwrap();
 
 		let wtcsv = WTCSV::new_from_file(file).unwrap();
 

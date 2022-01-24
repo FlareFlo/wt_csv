@@ -4,6 +4,7 @@ use crate::{DELIMITER, RECORD_SEP};
 pub struct Header {
 	pub len: usize,
 	pub params: Vec<String>,
+	pub raw_params: Vec<String>,
 }
 
 impl Header {
@@ -17,7 +18,8 @@ impl Header {
 		} else {
 			Ok(Self {
 				len: headers.len(),
-				params: headers.iter().map(|x|sanitize_header(x)).collect::<Vec<String>>(),
+				params: headers.iter().map(|x|sanitize_header(x)).collect(),
+				raw_params: headers.iter().map(|x|x.to_string()).collect(),
 			})
 		}
 	}
