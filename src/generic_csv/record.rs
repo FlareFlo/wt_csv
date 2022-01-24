@@ -1,10 +1,13 @@
+use crate::DELIMITER;
+
+#[derive(Debug)]
 pub struct Record {
 	pub items: Vec<String>,
 }
 
 impl Record {
 	pub fn from_wt_string(raw: &str) -> Self {
-		let raw_fields = raw.split(";").collect::<Vec<&str>>();
+		let raw_fields = raw.split(DELIMITER).collect::<Vec<&str>>();
 
 		let sanitized = raw_fields.iter()
 			.map(|x|x.replace("\"", ""))
