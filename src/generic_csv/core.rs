@@ -19,18 +19,35 @@ impl WTCSV {
 	pub fn new_from_file(file: String) -> Result<Self, String> {
 		let header = Header::from_file(&file)?;
 
+		let mut records: Vec<String> = Vec::new();
+
+		let mut delim_count = 0;
+		let mut buffer = "".to_owned();
+		let mut just_carried = false;
+
+		for char in file.chars() {
+			buffer.push(char);
+			if char == ';' {
+				if delim_count >= header.len {
+					records.push(buffer.clone());
+					buffer.clear();
+					delim_count = 0;
+				} else {
+					delim_count += 1;
+				}
+				println!("Delim: {} Buffer: {}", delim_count, buffer);
+			}
+		}
+		// println!("{:#?}", records);
+
 		let mut wtcsv = Self {
 			base_file: "".to_owned(),
 			header,
 			records: Vec::new(),
 		};
 
-		let mut iter = file.clone()
-			.split(RECORD_SEP).map(|x|x.to_owned()).collect::<Vec<String>>();
-		iter.remove(0);
-		iter.remove(iter.len() - 1);
 
-		for record in iter {
+		for record in records {
 			wtcsv.insert_record(&record)?;
 		}
 
