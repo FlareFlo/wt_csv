@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use crate::generic_csv::header::Header;
 use crate::generic_csv::record::Record;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(clippy::upper_case_acronyms)]
 pub struct WTCSV {
 	pub base_file: String,
@@ -11,6 +13,7 @@ pub struct WTCSV {
 
 impl WTCSV {
 	/// Creates an empty record with initialized header fields.
+	#[must_use]
 	pub fn new_from_file(file: String) -> Result<Self, String> {
 		let header = Header::from_file(&file)?;
 
@@ -53,6 +56,7 @@ impl WTCSV {
 	}
 
 	/// Inserts record into struct from file, returns result if  the process was successful
+	#[must_use]
 	pub fn insert_record(&mut self, record: &str) -> Result<(), String> {
 		let serialized_record = Record::from_wt_string(record);
 		if self.header.len == serialized_record.items.len() {
@@ -88,6 +92,19 @@ impl WTCSV {
 
 		file
 	}
+
+	pub fn edit_record_by_id(&mut self, id: &str, new_target: &str) {
+		let mut map: HashMap<&str, u32> = HashMap::new();
+		for (i, record) in self.records.iter().enumerate() {
+			map.insert(&record.items[0], i as u32);
+		}
+		let target = *map.get(id).unwrap() as usize;
+		for (i, _) in self.records[target].items.clone().iter().enumerate() {
+			if i != 0 {
+				self.records[target].items[i] = new_target.to_string();
+			}
+		}
+	}
 }
 
 #[cfg(test)]
@@ -99,7 +116,7 @@ mod tests {
 
 	#[test]
 	#[allow(unused_variables)]
-	fn test_core_insert() {
+	fn core_insert() {
 		let file = fs::read_to_string("lang/units.csv").unwrap();
 
 		let wtcsv = WTCSV::new_from_file(file).unwrap();
@@ -111,6 +128,19 @@ mod tests {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
 		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
 
-		assert_eq!(file, wtcsv.export_to_file().unwrap())
+		assert_eq!(file, wtcsv.export_to_file())
+	}
+
+	#[test]
+	#[allow(unused_variables)]
+	fn edit_record() {
+		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
+		let mut wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
+
+		wtcsv.edit_record_by_id("country_china","west-taiwan");
+
+		let export = wtcsv.export_to_file();
+
+		assert_eq!(fs::read_to_string("lang_edit/_common_languages.csv").unwrap(), export);
 	}
 }

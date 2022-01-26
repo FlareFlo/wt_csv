@@ -1,6 +1,6 @@
 use crate::{DELIMITER, RECORD_SEP};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Header {
 	pub len: usize,
 	pub params: Vec<String>,
