@@ -5,6 +5,7 @@ pub struct Header {
 	pub len: usize,
 	pub params: Vec<String>,
 	pub raw_params: Vec<String>,
+	pub raw_header: String,
 }
 
 impl Header {
@@ -20,6 +21,7 @@ impl Header {
 				len: headers.len(),
 				params: headers.iter().map(|x|sanitize_header(x)).collect(),
 				raw_params: headers.iter().map(|x|x.to_string()).collect(),
+				raw_header: header.to_owned(),
 			})
 		}
 	}
