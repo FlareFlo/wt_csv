@@ -23,22 +23,23 @@ impl WTCSV {
 
 		let mut delim_count = 0;
 		let mut buffer = "".to_owned();
-		let mut just_carried = false;
 
 		for char in file.chars() {
 			buffer.push(char);
-			if char == ';' {
-				if delim_count >= header.len {
-					records.push(buffer.clone());
-					buffer.clear();
-					delim_count = 0;
-				} else {
-					delim_count += 1;
-				}
-				println!("Delim: {} Buffer: {}", delim_count, buffer);
+
+			if delim_count == header.len - 1 && char == '\n'  {
+				// Cropping away the last two chars as they are CLRF - \r\n chars
+				let new_buffer = buffer.clone()[..buffer.len() - 2].to_owned();
+				records.push(new_buffer);
+				buffer.clear();
+				delim_count = 0;
 			}
+
+			if char == ';' {
+				delim_count += 1;
+			}
+			// println!("Delim: {} Buffer: {}", delim_count, buffer);
 		}
-		// println!("{:#?}", records);
 
 		let mut wtcsv = Self {
 			base_file: "".to_owned(),
@@ -62,7 +63,7 @@ impl WTCSV {
 			self.records.push(serialized_record);
 			Ok(())
 		} else {
-			println!("{}", record);
+			println!("Failed record length {}", record);
 			Err(format!("Expected record length of {}, found actual length of {}", self.header.len, serialized_record.items.len()))
 		}
 	}
@@ -72,16 +73,20 @@ impl WTCSV {
 mod tests {
 	use std::fs;
 	use std::thread::sleep;
-	use std::time::Duration;
+	use std::time::{Duration, Instant};
 
 	use crate::generic_csv::core::WTCSV;
 
 	#[test]
 	fn test_core_insert() {
-		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
+		let file = fs::read_to_string("lang/units.csv").unwrap();
+
+		let start = Instant::now();
 
 		let wtcsv = WTCSV::new_from_file(file).unwrap();
 
-		eprintln!("wtcsv = {:#?}", wtcsv.records);
+		eprintln!("start.elapsed() = {:?}", start.elapsed());
+
+		// eprintln!("wtcsv = {:#?}", wtcsv.records);
 	}
 }
