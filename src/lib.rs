@@ -1,4 +1,6 @@
-mod generic_csv;
+#[allow(clippy::missing_errors_doc)]
+
+pub mod generic_csv;
 mod util;
 
 const DELIMITER: char = ';';

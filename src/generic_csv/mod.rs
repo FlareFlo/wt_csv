@@ -1,3 +1,3 @@
-mod core;
-mod header;
-mod record;
+pub mod core;
+pub mod header;
+pub mod record;

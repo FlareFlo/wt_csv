@@ -6,11 +6,18 @@ pub struct Record {
 }
 
 impl Record {
+	#[must_use]
 	pub fn from_wt_string(raw: &str) -> Self {
 		let raw_fields = raw.split(DELIMITER).collect::<Vec<&str>>();
 
 		let sanitized = raw_fields.iter()
-			.map(|x|x.replace("\"", ""))
+			.map(|x|
+				if x.is_empty() {
+					(*x).to_string()
+				} else {
+					(*x).to_string()[..x.len() - 1][1..].to_owned()
+				}
+			)
 			.collect::<Vec<String>>();
 
 		Self {

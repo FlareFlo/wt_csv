@@ -2,6 +2,7 @@ use crate::generic_csv::header::Header;
 use crate::generic_csv::record::Record;
 
 #[derive(Debug)]
+#[allow(clippy::upper_case_acronyms)]
 pub struct WTCSV {
 	pub base_file: String,
 	pub header: Header,
@@ -63,14 +64,15 @@ impl WTCSV {
 		}
 	}
 
-	pub fn export_to_file(&self) -> Result<String, String> {
+	#[must_use]
+	pub fn export_to_file(&self) -> String {
 		let mut file = self.header.raw_header.clone();
 
 		for record in &self.records {
-			let opt_mark = |x: &String| if !x.is_empty() {
-				format!("\"{}\"", x)
+			let opt_mark = |x: &String| if x.is_empty() {
+				x.clone()
 			} else {
-				x.to_owned()
+				format!("\"{}\"", x)
 			};
 
 			let mut str_record = record.items
@@ -79,11 +81,12 @@ impl WTCSV {
 				.collect::<Vec<String>>()
 				.join(";");
 
-			str_record.push_str("\r");
+			str_record.push_str("\r\n");
+
 			file.push_str(&str_record);
 		}
 
-		Ok(file)
+		file
 	}
 }
 
@@ -91,7 +94,6 @@ impl WTCSV {
 mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
-	use std::time::Instant;
 
 	use crate::generic_csv::core::WTCSV;
 
@@ -100,13 +102,7 @@ mod tests {
 	fn test_core_insert() {
 		let file = fs::read_to_string("lang/units.csv").unwrap();
 
-		let start = Instant::now();
-
 		let wtcsv = WTCSV::new_from_file(file).unwrap();
-
-		eprintln!("start.elapsed() = {:?}", start.elapsed());
-
-		// eprintln!("wtcsv = {:#?}", wtcsv.records);
 	}
 
 	#[test]

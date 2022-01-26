@@ -14,26 +14,29 @@ impl Header {
 
 		let headers = header.split(DELIMITER).collect::<Vec<&str>>();
 
+		let mut raw_header = header.to_owned();
+		raw_header.push('\n');
+
 		if headers.len() <= 1 {
 			Err("Only one or less headers could be identified")
 		} else {
 			Ok(Self {
 				len: headers.len(),
 				params: headers.iter().map(|x|sanitize_header(x)).collect(),
-				raw_params: headers.iter().map(|x|x.to_string()).collect(),
-				raw_header: header.to_owned(),
+				raw_params: headers.iter().map(|x|(*x).to_string()).collect(),
+				raw_header,
 			})
 		}
 	}
 }
 
-pub fn sanitize_header(raw: &str) -> String {
+fn sanitize_header(raw: &str) -> String {
 	raw
 		.replace("\"", "")
 		.replace("<", "")
 		.replace(">", "")
 		.replace("\r", "")
-		.split("|").collect::<Vec<&str>>()[0].to_string()
+		.split('|').collect::<Vec<&str>>()[0].to_string()
 }
 
 #[cfg(test)]
@@ -42,11 +45,10 @@ mod tests {
 	use super::*;
 
 	#[test]
+	#[allow(unused_variables)]
 	fn test_header_to_file() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
 
 		let header = Header::from_file(&file);
-
-		eprintln!("header = {:?}", header);
 	}
 }
