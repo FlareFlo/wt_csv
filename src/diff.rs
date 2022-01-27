@@ -7,6 +7,7 @@ pub struct Diff {
 	pub new: String,
 }
 
+#[allow(clippy::missing_errors_doc)]
 impl Diff {
 	pub fn diff_from_ref(left: &WTCSV, right: &WTCSV) -> Result<Vec<Self>, String> {
 		left.is_same(right)?;

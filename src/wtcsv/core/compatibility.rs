@@ -39,7 +39,7 @@ impl WTCSV {
 		// Verifying if headers are matching and in order
 		for (i, param) in self.header.params.iter().enumerate() {
 			if other.header.params[i] != *param {
-				return Err(SameErr::HeaderContent(param.to_owned(), other.header.params[i].to_owned()));
+				return Err(SameErr::HeaderContent(param.clone(), other.header.params[i].clone()));
 			}
 		}
 
