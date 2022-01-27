@@ -46,6 +46,19 @@ mod tests {
 		diff.edit_record_by_id("country_britain", "tea").unwrap();
 
 		let diff_res = Diff::diff_from_ref(&init, &diff).unwrap();
-		eprintln!("diff_res = {:?}", diff_res);
+
+		assert_eq!(r#"[Diff { id: "country_britain", old: "Great Britain", new: "tea" }]"#, format!("{:?}", diff_res));
+	}
+	#[test]
+	fn expect_diff_invert() {
+		let init = fs::read_to_string("lang/_common_languages.csv").unwrap();
+		let init = WTCSV::new_from_file(init).unwrap();
+
+		let mut diff = init.clone();
+		diff.edit_record_by_id("country_britain", "tea").unwrap();
+
+		let diff_res = Diff::diff_from_ref(&diff, &init).unwrap();
+
+		assert_eq!(r#"[Diff { id: "country_britain", old: "tea", new: "Great Britain" }]"#, format!("{:?}", diff_res));
 	}
 }
