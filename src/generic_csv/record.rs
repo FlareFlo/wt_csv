@@ -15,6 +15,7 @@ impl Record {
 				if x.is_empty() {
 					(*x).to_string()
 				} else {
+					// Cropping away the leading and ending quotes
 					(*x).to_string()[..x.len() - 1][1..].to_owned()
 				}
 			)
