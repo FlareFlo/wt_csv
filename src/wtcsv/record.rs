@@ -29,7 +29,7 @@ impl Record {
 
 #[cfg(test)]
 mod tests {
-	use crate::generic_csv::record::Record;
+	use crate::wtcsv::record::Record;
 
 	#[test]
 	fn test_wt_string() {

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::DELIMITER;
-use crate::generic_csv::header::Header;
-use crate::generic_csv::record::Record;
+use crate::wtcsv::header::Header;
+use crate::wtcsv::record::Record;
 
 #[derive(Debug, Clone)]
 #[allow(clippy::upper_case_acronyms)]
@@ -128,7 +128,7 @@ mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
 
-	use crate::generic_csv::core::WTCSV;
+	use crate::wtcsv::core::wtcsv::WTCSV;
 
 	#[test]
 	#[allow(unused_variables)]
