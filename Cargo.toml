@@ -9,5 +9,5 @@ version = "0.2.0"
 edition = "2021"
 rust-version = "1.58.1"
 
-exclude = ["./lang/*", "./lang_edit/*"] # These should be externall pulled for testing
+exclude = ["lang/*", "lang_edit/*"] # These should be externall pulled for testing
 
