@@ -15,7 +15,9 @@ impl Header {
 		let headers = header.split(DELIMITER).collect::<Vec<&str>>();
 
 		let mut raw_header = header.to_owned();
-		raw_header.push('\n');
+
+		// Splitting on the record separator pops it, so we re-append it
+		raw_header.push(RECORD_SEP);
 
 		if headers.len() <= 1 {
 			Err("Only one or less headers could be identified")
