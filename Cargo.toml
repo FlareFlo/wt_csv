@@ -1,7 +1,10 @@
 [package]
 name = "wt_csv"
-version = "0.2.0"
 description = "Custom CSV parser for the .csv files that the game War Thunder utilizes"
-license = "MIT"
-rust-version = "1.58.0"
+repository = "https://github.com/FlareFlo/wt_csv"
+license = "Apache-2.0"
+
+version = "0.2.0"
+
 edition = "2021"
+rust-version = "1.58.1"
