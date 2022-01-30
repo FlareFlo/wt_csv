@@ -122,8 +122,10 @@ impl WTCSV {
 		}
 	}
 
+	/// More efficient for the largest of files, has no application right now
 	#[must_use]
-	pub fn get_record_by_id(&self, id: &str) -> Result<Record, String> {
+	#[deprecated]
+	pub fn get_record_by_id_map(&self, id: &str) -> Result<Record, String> {
 		let mut map: HashMap<String, Record> = HashMap::new();
 
 		for record in &self.records {
@@ -139,13 +141,25 @@ impl WTCSV {
 			}
 		}
 	}
+
+	/// The fastest for smaller files, currently the fastest
+	#[must_use]
+	pub fn get_record_by_id_vec(&self, id: &str) -> Result<Record, String> {
+		for record in &self.records {
+			if record.items[0] == id {
+				return  Ok(record.clone());
+			}
+		}
+		Err("Id matches no item".to_owned())
+	}
 }
 
 #[cfg(test)]
-#[allow(unused_variables)]
+#[allow(unused_variables, deprecated)]
 mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
+	use std::time::Instant;
 
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
@@ -177,18 +191,38 @@ mod tests {
 	}
 
 	#[test]
-	fn get_good_record() {
-		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
+	fn get_good_record_map() {
+		let file = fs::read_to_string("lang/units.csv").unwrap();
 		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
 
-		assert_eq!(true, wtcsv.get_record_by_id("country_germany").is_ok())
+		let start = Instant::now();
+
+		let result = wtcsv.get_record_by_id_map("ussr_mpk_201k_2");
+
+		eprintln!("Loop + map = {:?}", start.elapsed());
+
+		assert_eq!(true, result.is_ok())
 	}
 
 	#[test]
-	fn get_bad_record() {
+	fn get_good_record_vec() {
+		let file = fs::read_to_string("lang/units.csv").unwrap();
+		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
+
+		let start = Instant::now();
+
+		let result = wtcsv.get_record_by_id_vec("ussr_mpk_201k_2");
+
+		eprintln!("Loop = {:?}", start.elapsed());
+
+		assert_eq!(true, result.is_ok())
+	}
+
+	#[test]
+	fn get_bad_record_vec() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
 		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
 
-		assert_eq!(true, wtcsv.get_record_by_id("country_fake").is_err())
+		assert_eq!(true, wtcsv.get_record_by_id_vec("country_fake").is_err())
 	}
 }
