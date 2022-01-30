@@ -7,7 +7,6 @@ use crate::wtcsv::record::Record;
 #[derive(Debug, Clone)]
 #[allow(clippy::upper_case_acronyms)]
 pub struct WTCSV {
-	pub base_file: String,
 	pub header: Header,
 	pub records: Vec<Record>,
 }
@@ -41,7 +40,6 @@ impl WTCSV {
 		}
 
 		let mut wtcsv = Self {
-			base_file: "".to_owned(),
 			header,
 			records: Vec::new(),
 		};
@@ -54,7 +52,6 @@ impl WTCSV {
 		// The first record would be the header as it is not specifically distinguished
 		wtcsv.records.remove(0);
 
-		wtcsv.base_file = file;
 		Ok(wtcsv)
 	}
 
