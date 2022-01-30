@@ -14,6 +14,7 @@ pub struct WTCSV {
 
 impl WTCSV {
 	/// Creates a record from a supported file
+	#[must_use]
 	pub fn new_from_file(file: String) -> Result<Self, String> {
 		let header = Header::from_file(&file)?;
 
@@ -58,6 +59,7 @@ impl WTCSV {
 	}
 
 	/// Inserts record into struct from file, returns result if the process was successful
+	#[must_use]
 	pub fn insert_record(&mut self, record: &str) -> Result<(), String> {
 		let serialized_record = Record::from_wt_string(record);
 		if self.header.len == serialized_record.items.len() {
@@ -97,6 +99,7 @@ impl WTCSV {
 		file
 	}
 
+	#[must_use]
 	pub fn edit_record_by_id(&mut self, id: &str, new_target: &str) -> Result<(), &str> {
 		// Creating static baseline that does not affect &mut self
 		let baseline = self.clone();
@@ -121,9 +124,28 @@ impl WTCSV {
 			}
 		}
 	}
+
+	#[must_use]
+	pub fn get_record_by_id(&self, id: &str) -> Result<Record, String> {
+		let mut map: HashMap<String, Record> = HashMap::new();
+
+		for record in &self.records {
+			map.insert(record.items[0].clone(), record.clone());
+		}
+
+		match map.get(id) {
+			Some(item) => {
+				return Ok(item.clone());
+			}
+			None => {
+				Err("Id matches no item".to_owned())
+			}
+		}
+	}
 }
 
 #[cfg(test)]
+#[allow(unused_variables)]
 mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
@@ -131,7 +153,6 @@ mod tests {
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
 	#[test]
-	#[allow(unused_variables)]
 	fn core_insert() {
 		let file = fs::read_to_string("lang/units.csv").unwrap();
 
@@ -139,7 +160,6 @@ mod tests {
 	}
 
 	#[test]
-	#[allow(unused_variables)]
 	fn core_to_file() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
 		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
@@ -148,7 +168,6 @@ mod tests {
 	}
 
 	#[test]
-	#[allow(unused_variables)]
 	fn edit_record() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
 		let mut wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
@@ -158,5 +177,21 @@ mod tests {
 		let export = wtcsv.export_to_file();
 
 		assert_eq!(fs::read_to_string("lang_edit/_common_languages.csv").unwrap(), export);
+	}
+
+	#[test]
+	fn get_good_record() {
+		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
+		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
+
+		assert_eq!(true, wtcsv.get_record_by_id("country_germany").is_ok())
+	}
+
+	#[test]
+	fn get_bad_record() {
+		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
+		let wtcsv = WTCSV::new_from_file(file.clone()).unwrap();
+
+		assert_eq!(true, wtcsv.get_record_by_id("country_fake").is_err())
 	}
 }
