@@ -7,6 +7,7 @@ use crate::wtcsv::core::wtcsv::WTCSV;
 pub enum WTCSVError {
 	HeaderLen(usize, usize),
 	HeaderContent(String, String),
+	HeaderTooShort(usize),
 	RecordLength(usize, usize),
 	RecordIdNotFound(String, String),
 }
@@ -16,6 +17,7 @@ impl Display for WTCSVError {
 		match self {
 			WTCSVError::HeaderLen(left, right) => {write!(f, "Header Length mismatch, expected {left} but found {right}")}
 			WTCSVError::HeaderContent(left, right) => {write!(f, "Header content mismatch, expected {left} but found {right}")}
+			WTCSVError::HeaderTooShort(left) => {write!(f, "Header too short, expected at least 2 but found {left}")}
 			WTCSVError::RecordLength(left, right) => {write!(f, "Record content mismatch, expected {left} but found {right}")}
 			WTCSVError::RecordIdNotFound(left, right) => {write!(f, "File {left} does not contain record with id {right}")}
 		}

@@ -1,4 +1,6 @@
+use std::error::Error;
 use crate::{DELIMITER, RECORD_SEP};
+use crate::wtcsv::core::compatibility::WTCSVError;
 
 #[derive(Debug, Clone)]
 pub struct Header {
@@ -9,7 +11,7 @@ pub struct Header {
 }
 
 impl Header {
-	pub fn from_file(file: &str) -> Result<Self, &str> {
+	pub fn from_file(file: &str) -> Result<Self, Box<dyn Error>> {
 		let header = file.split(RECORD_SEP).collect::<Vec<&str>>()[0];
 
 		let headers = header.split(DELIMITER).collect::<Vec<&str>>();
@@ -20,7 +22,7 @@ impl Header {
 		raw_header.push(RECORD_SEP);
 
 		if headers.len() <= 1 {
-			Err("Only one or less headers could be identified")
+			Err(Box::new(WTCSVError::HeaderTooShort(1)))
 		} else {
 			Ok(Self {
 				len: headers.len(),
