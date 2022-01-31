@@ -1,6 +1,6 @@
 use std::error::Error;
 use crate::{DELIMITER, RECORD_SEP};
-use crate::wtcsv::core::compatibility::WTCSVError;
+use crate::wtcsv::core::error::WTCSVError;
 
 #[derive(Debug, Clone)]
 pub struct Header {

@@ -60,7 +60,7 @@ impl WTCSV {
 #[cfg(test)]
 mod tests {
 	use std::fs;
-	use crate::wtcsv::core::compatibility::WTCSVError;
+	use crate::wtcsv::core::error::WTCSVError;
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
 	#[test]

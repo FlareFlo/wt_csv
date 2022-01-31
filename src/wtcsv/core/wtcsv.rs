@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::DELIMITER;
-use crate::wtcsv::core::compatibility::WTCSVError;
+use crate::wtcsv::core::error::WTCSVError;
 use crate::wtcsv::header::Header;
 use crate::wtcsv::record::Record;
 

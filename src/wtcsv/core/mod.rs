@@ -1,2 +1,2 @@
 pub mod wtcsv;
-pub mod compatibility;
+pub mod error;
