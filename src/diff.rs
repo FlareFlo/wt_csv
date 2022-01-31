@@ -9,7 +9,7 @@ pub struct Diff {
 
 #[allow(clippy::missing_errors_doc)]
 impl Diff {
-	pub fn diff_from_ref(left: &WTCSV, right: &WTCSV) -> Result<Vec<Self>, String> {
+	pub fn from_wtcsv(left: &WTCSV, right: &WTCSV) -> Result<Vec<Self>, String> {
 		left.is_same(right)?;
 
 		let mut diffs: Vec<Self> =  Vec::new();
@@ -45,7 +45,7 @@ mod tests {
 		let mut diff = init.clone();
 		diff.edit_record_by_id("country_britain", "tea").unwrap();
 
-		let diff_res = Diff::diff_from_ref(&init, &diff).unwrap();
+		let diff_res = Diff::from_wtcsv(&init, &diff).unwrap();
 
 		assert_eq!(r#"[Diff { id: "country_britain", old: "Great Britain", new: "tea" }]"#, format!("{:?}", diff_res));
 	}
@@ -57,7 +57,7 @@ mod tests {
 		let mut diff = init.clone();
 		diff.edit_record_by_id("country_britain", "tea").unwrap();
 
-		let diff_res = Diff::diff_from_ref(&diff, &init).unwrap();
+		let diff_res = Diff::from_wtcsv(&diff, &init).unwrap();
 
 		assert_eq!(r#"[Diff { id: "country_britain", old: "tea", new: "Great Britain" }]"#, format!("{:?}", diff_res));
 	}

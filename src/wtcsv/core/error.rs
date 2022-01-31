@@ -24,9 +24,7 @@ impl Display for WTCSVError {
 	}
 }
 
-impl Error for WTCSVError {
-
-}
+impl Error for WTCSVError{}
 
 impl From<WTCSVError> for String {
 	fn from(err: WTCSVError) -> Self {
