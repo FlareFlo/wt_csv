@@ -49,7 +49,7 @@ impl WTCSV {
 			// Subtracting one as there is always one less delimiter compared to headers
 			if delim_count == header.len - 1 && (char == RECORD_SEP) { // End of record is indicated by \n as CLRF terminates with that
 				// Cropping away the last two chars as they are CLRF - \r\n chars
-				let new_buffer = buffer.clone()[..buffer.len() - 2].to_owned();
+				let new_buffer = buffer.clone()[..buffer.len() - if crlf {2 } else {1}].to_owned();
 				records.push(new_buffer);
 				buffer.clear();
 				delim_count = 0;
