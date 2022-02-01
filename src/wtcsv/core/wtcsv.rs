@@ -17,11 +17,11 @@ pub struct WTCSV {
 }
 
 const DELIM_CONDITION: fn(x: char, other: char) -> bool = |x, other|{
-	#[cfg(target_os = "windows")]
+	// #[cfg(target_os = "windows")]
 	return x == RECORD_SEP;
 
-	#[cfg(target_os = "linux")]
-	return x == RECORD_SEP && other != '\r'
+	// #[cfg(target_os = "linux")]
+	// return x == RECORD_SEP && other != '\r'
 };
 
 impl WTCSV {
@@ -33,6 +33,8 @@ impl WTCSV {
 	/// Creates a record from a supported file
 	#[must_use]
 	pub fn new_from_file(file: String, name: &str) -> Result<Self, Box<dyn Error>> {
+		let file = file.replace("\n\r", "\n");
+
 		let header = Header::from_file(&file)?;
 
 		let mut records: Vec<String> = Vec::new();
@@ -110,7 +112,7 @@ impl WTCSV {
 				.collect::<Vec<String>>()
 				.join(&DELIMITER.to_string());
 
-			// Appending CLRF
+			// Appending LF
 			str_record.push_str("\r\n");
 
 			file.push_str(&str_record);
