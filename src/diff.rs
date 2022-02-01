@@ -10,7 +10,7 @@ pub struct Diff {
 #[allow(clippy::missing_errors_doc)]
 impl Diff {
 	pub fn from_wtcsv(left: &WTCSV, right: &WTCSV) -> Result<Vec<Self>, String> {
-		left.is_same(right)?;
+		left.is_compatible(right)?;
 
 		let mut diffs: Vec<Self> =  Vec::new();
 

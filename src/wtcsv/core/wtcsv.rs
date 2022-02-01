@@ -160,8 +160,15 @@ mod tests {
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
 	#[test]
-	fn core_read() {
-		WTCSV::new_from_path("lang/units.csv", "units").unwrap();
+	fn core_read_all() {
+		for dir in fs::read_dir("lang").unwrap().enumerate() {
+			let path = dir.1.unwrap().file_name().to_str().unwrap().to_owned();
+			if path.contains(".csv") {
+				if WTCSV::new_from_path(format!("lang/{}", path), "").is_err() {
+					eprintln!("path = {:?}", path);
+				}
+			}
+		}
 	}
 
 	#[test]

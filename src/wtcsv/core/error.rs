@@ -33,7 +33,7 @@ impl From<WTCSVError> for String {
 }
 
 impl WTCSV {
-	pub fn is_same(&self, other: &Self) -> Result<(), WTCSVError> {
+	pub fn is_compatible(&self, other: &Self) -> Result<(), WTCSVError> {
 		// Checking header length first
 		if self.header.params.len() != other.header.params.len() {
 			return Err(WTCSVError::HeaderLen(self.header.params.len(), other.header.params.len()));
@@ -58,7 +58,6 @@ impl WTCSV {
 #[cfg(test)]
 mod tests {
 	use std::fs;
-	use crate::wtcsv::core::error::WTCSVError;
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
 	#[test]
@@ -67,7 +66,7 @@ mod tests {
 
 		let wtcsv = WTCSV::new_from_file(units, "units").unwrap();
 
-		wtcsv.is_same(&wtcsv).unwrap()
+		assert!(wtcsv.is_compatible(&wtcsv).is_ok())
 	}
 
 	#[test]
@@ -79,12 +78,7 @@ mod tests {
 		let wtcsv_units = WTCSV::new_from_file(units, "units").unwrap();
 		let wtcsv_lang = WTCSV::new_from_file(lang, "_common_languages").unwrap();
 
-		match wtcsv_units.is_same(&wtcsv_lang) {
-			Err(WTCSVError::RecordLength(10432, 35)) => {
-			}
-			_ => {
-				panic!("See test for more details")
-			}
-		}
+
+		assert!(wtcsv_units.is_compatible(&wtcsv_lang).is_err());
 	}
 }

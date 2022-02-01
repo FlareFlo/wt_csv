@@ -16,7 +16,10 @@ impl Record {
 					(*x).to_string()
 				} else {
 					// Cropping away the leading and ending quotes
-					(*x).to_string()[..x.len() - 1][1..].to_owned()
+					let mut base_str = (*x).to_string();
+					base_str.remove(0);
+					base_str.pop();
+					base_str
 				}
 			)
 			.collect::<Vec<String>>();
