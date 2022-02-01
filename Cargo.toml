@@ -4,7 +4,7 @@ description = "Custom CSV parser for the .csv files that the game War Thunder ut
 repository = "https://github.com/FlareFlo/wt_csv"
 license = "Apache-2.0"
 
-version = "0.7.0"
+version = "0.8.0"
 
 edition = "2021"
 rust-version = "1.58.1"
