@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-use crate::DELIMITER;
+use crate::{DELIMITER, RECORD_SEP};
 use crate::wtcsv::core::error::WTCSVError;
 use crate::wtcsv::header::Header;
 use crate::wtcsv::record::Record;
@@ -15,6 +15,14 @@ pub struct WTCSV {
 	pub header: Header,
 	pub records: Vec<Record>,
 }
+
+const DELIM_CONDITION: fn(x: char, other: char) -> bool = |x, other|{
+	#[cfg(target_os = "windows")]
+	return x == RECORD_SEP;
+
+	#[cfg(target_os = "linux")]
+	return x == RECORD_SEP && other != '\r'
+};
 
 impl WTCSV {
 	pub fn new_from_path(path: impl AsRef<Path>, name: &str) -> Result<Self, Box<dyn Error>> {
@@ -40,7 +48,7 @@ impl WTCSV {
 			buffer.push(char);
 
 			// Subtracting one as there is always one less delimiter compared to headers
-			if delim_count == header.len - 1 && char == '\n' { // End of record is indicated by \n as CLRF terminates with that
+			if delim_count == header.len - 1 && DELIM_CONDITION(char, *chars.get(i + 1).unwrap_or(&' ')) { // End of record is indicated by \n as CLRF terminates with that
 				// Cropping away the last two chars as they are CLRF - \r\n chars
 				let new_buffer = buffer.clone()[..buffer.len() - 2].to_owned();
 				records.push(new_buffer);
