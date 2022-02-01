@@ -32,7 +32,11 @@ impl WTCSV {
 		let mut delim_count = 0; // Amount of delimiters ";" encountered since last buffer flush
 		let mut buffer = "".to_owned();
 
-		for char in file.chars() {
+		let chars = file.chars().collect::<Vec<char>>();
+
+		for i in 0..chars.len() {
+			let char = chars[i];
+
 			buffer.push(char);
 
 			// Subtracting one as there is always one less delimiter compared to headers
