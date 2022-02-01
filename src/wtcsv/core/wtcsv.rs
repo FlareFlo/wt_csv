@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-use crate::{DELIMITER, RECORD_SEP};
+use crate::{CRLF, DELIMITER, RECORD_SEP};
 use crate::wtcsv::core::error::WTCSVError;
 use crate::wtcsv::header::Header;
 use crate::wtcsv::record::Record;
@@ -26,7 +26,7 @@ impl WTCSV {
 	/// Creates a record from a supported file
 	#[must_use]
 	pub fn new_from_file(file: String, name: &str) -> Result<Self, Box<dyn Error>> {
-		let crlf = file.contains("\r\n");
+		let crlf = file.contains(CRLF);
 
 		let header = Header::from_file(&file)?;
 
@@ -107,10 +107,10 @@ impl WTCSV {
 				.join(&DELIMITER.to_string());
 
 			// Appending proper line-feed
-			str_record.push_str(if self.crlf {
-				"\r\n"
+			str_record.push_str(&if self.crlf {
+				CRLF.to_string()
 			} else {
-				"\n"
+				RECORD_SEP.to_string()
 			});
 
 			file.push_str(&str_record);
