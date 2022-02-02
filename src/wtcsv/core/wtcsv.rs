@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::fs;
 use std::path::Path;
@@ -149,6 +149,25 @@ impl WTCSV {
 		}
 		Err(Box::new(WTCSVError::RecordIdNotFound(id.to_string(), self.name.clone())))
 	}
+
+	/// Returns list of ids matching provided case
+	/// Utilizing a looped hashmap this function should run at O(N * Nr) Nr being the amount of attributes
+	pub fn get_ids_by_parameter(&self, parameter: &str) -> Vec<String> {
+		let mut map = HashMap::new();
+		let mut known = HashSet::new();
+		for record in &self.records {
+			for item in &record.items {
+				if map.get(item).is_some() && item == parameter {
+					known.insert(record.items[0].clone());
+				}
+				map.insert(item, &record.items[0]);
+			}
+		}
+		known.insert(map.get(&parameter.to_string()).unwrap().to_string());
+		let mut result: Vec<String> = known.iter().map(|x|x.to_owned()).collect();
+		result.sort();
+		result
+	}
 }
 
 #[cfg(test)]
@@ -156,6 +175,7 @@ impl WTCSV {
 mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
+	use std::time::Instant;
 
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
@@ -207,5 +227,16 @@ mod tests {
 		let wtcsv = WTCSV::new_from_file(file.clone(), "_common_languages").unwrap();
 
 		assert_eq!(true, wtcsv.get_record_by_id_vec("country_fake").is_err())
+	}
+
+	#[test]
+	fn get_id_by_parameter() {
+		let file = fs::read_to_string("lang/units.csv").unwrap();
+		let wtcsv = WTCSV::new_from_file(file.clone(), "units").unwrap();
+
+		let mut result = wtcsv.get_ids_by_parameter("Flusi 1");
+
+		result.sort();
+		assert_eq!(["germ_rdm242_1", "germ_rdm242_shop"], result.as_slice());
 	}
 }
