@@ -168,7 +168,7 @@ impl WTCSV {
 		result.sort();
 		result
 	}
-	/// Equal as `get_ids_by_parameter` with the exception that it takes an (empty) buffer to greatly speed up repeated calls to this function
+	/// Equal as [``get_ids_by_parameter``](WTCSV) with the exception that it takes an (empty) buffer to greatly speed up repeated calls to this function
 	pub fn get_buffered_ids_by_parameter(&self, parameter: &str, buffer: &mut HashMap<String, String>) -> Vec<String> {
 		if buffer.is_empty() {
 			for record in &self.records {
