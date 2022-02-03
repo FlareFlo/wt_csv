@@ -64,7 +64,7 @@ mod tests {
 	fn test_equal() {
 		let units = fs::read_to_string("lang/units.csv").unwrap();
 
-		let wtcsv = WTCSV::new_from_file(units, "units").unwrap();
+		let wtcsv = WTCSV::new_from_file(&units, "units").unwrap();
 
 		assert!(wtcsv.is_compatible(&wtcsv).is_ok())
 	}
@@ -75,8 +75,8 @@ mod tests {
 		let units = fs::read_to_string("lang/units.csv").unwrap();
 		let lang = fs::read_to_string("lang/_common_languages.csv").unwrap();
 
-		let wtcsv_units = WTCSV::new_from_file(units, "units").unwrap();
-		let wtcsv_lang = WTCSV::new_from_file(lang, "_common_languages").unwrap();
+		let wtcsv_units = WTCSV::new_from_file(&units, "units").unwrap();
+		let wtcsv_lang = WTCSV::new_from_file(&lang, "_common_languages").unwrap();
 
 
 		assert!(wtcsv_units.is_compatible(&wtcsv_lang).is_err());

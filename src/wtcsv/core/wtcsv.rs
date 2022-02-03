@@ -20,15 +20,14 @@ pub struct WTCSV {
 impl WTCSV {
 	pub fn new_from_path(path: impl AsRef<Path>, name: &str) -> Result<Self, Box<dyn Error>> {
 		let file = fs::read_to_string(path)?;
-		WTCSV::new_from_file(file, name)
+		WTCSV::new_from_file(&file, name)
 	}
 
 	/// Creates a record from a supported file
-	#[must_use]
-	pub fn new_from_file(file: String, name: &str) -> Result<Self, Box<dyn Error>> {
+	pub fn new_from_file(file: &str, name: &str) -> Result<Self, Box<dyn Error>> {
 		let crlf = file.contains(CRLF);
 
-		let header = Header::from_file(&file)?;
+		let header = Header::from_file(file)?;
 
 		let mut records: Vec<String> = Vec::new();
 
@@ -37,6 +36,7 @@ impl WTCSV {
 
 		let chars = file.chars().collect::<Vec<char>>();
 
+		#[allow(clippy::needless_range_loop)]
 		for i in 0..chars.len() {
 			let char = chars[i];
 
@@ -75,7 +75,6 @@ impl WTCSV {
 	}
 
 	/// Inserts record into struct from file, returns result if the process was successful
-	#[must_use]
 	pub fn insert_record(&mut self, record: &str) -> Result<(), Box<dyn Error>> {
 		let serialized_record = Record::from_wt_string(record);
 		if self.header.len == serialized_record.items.len() {
@@ -119,7 +118,6 @@ impl WTCSV {
 		file
 	}
 
-	#[must_use]
 	pub fn edit_record_by_id(&mut self, id: &str, new_target: &str) -> Result<(), Box<dyn Error>> {
 		// Creating static baseline that does not affect &mut self
 		let baseline = self.clone();
@@ -130,7 +128,7 @@ impl WTCSV {
 			map.insert(&record.items[0], i);
 		}
 
-		let result = map.get(id).ok_or(WTCSVError::RecordIdNotFound(id.to_string(), self.name.clone()))?;
+		let result = map.get(id).ok_or_else(|| WTCSVError::RecordIdNotFound(id.to_string(), self.name.clone()))?;
 		for (i, _) in baseline.records[*result].items.iter().enumerate() {
 			if i != 0 {
 				self.records[*result].items[i] = new_target.to_string();
@@ -140,7 +138,6 @@ impl WTCSV {
 	}
 
 	/// The fastest for smaller files, currently the fastest
-	#[must_use]
 	pub fn get_record_by_id_vec(&self, id: &str) -> Result<Record, Box<dyn Error>> {
 		for record in &self.records {
 			if record.items[0] == id {
@@ -151,7 +148,8 @@ impl WTCSV {
 	}
 
 	/// Returns list of ids matching provided case
-	/// Utilizing a looped hashmap this function should run at O(N * Nr) Nr being the amount of attributes
+	/// Utilizing a looped hashmap this function should run at O(N * Nr) Nr being the amount of attributes[
+	#[must_use]
 	pub fn get_ids_by_parameter(&self, parameter: &str) -> Vec<String> {
 		let mut map = HashMap::new();
 		let mut known = HashSet::new();
@@ -163,8 +161,8 @@ impl WTCSV {
 				map.insert(item, &record.items[0]);
 			}
 		}
-		known.insert(map.get(&parameter.to_string()).unwrap().to_string());
-		let mut result: Vec<String> = known.iter().map(|x|x.to_owned()).collect();
+		known.insert((*map.get(&parameter.to_string()).unwrap()).to_string());
+		let mut result: Vec<String> = known.iter().map(std::clone::Clone::clone).collect();
 		result.sort();
 		result
 	}
@@ -175,7 +173,6 @@ impl WTCSV {
 mod tests {
 	#[allow(unused_imports)]
 	use std::fs;
-	use std::time::Instant;
 
 	use crate::wtcsv::core::wtcsv::WTCSV;
 
@@ -194,7 +191,7 @@ mod tests {
 	#[test]
 	fn core_to_file() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
-		let wtcsv = WTCSV::new_from_file(file.clone(), "units").unwrap();
+		let wtcsv = WTCSV::new_from_file(&file.clone(), "units").unwrap();
 
 		assert_eq!(file, wtcsv.export_to_file())
 	}
@@ -202,7 +199,7 @@ mod tests {
 	#[test]
 	fn edit_record() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
-		let mut wtcsv = WTCSV::new_from_file(file.clone(), "_common_languages").unwrap();
+		let mut wtcsv = WTCSV::new_from_file(&file.clone(), "_common_languages").unwrap();
 
 		wtcsv.edit_record_by_id("country_china", "west-taiwan").unwrap();
 
@@ -214,7 +211,7 @@ mod tests {
 	#[test]
 	fn get_good_record_vec() {
 		let file = fs::read_to_string("lang/units.csv").unwrap();
-		let wtcsv = WTCSV::new_from_file(file.clone(), "units").unwrap();
+		let wtcsv = WTCSV::new_from_file(&file.clone(), "units").unwrap();
 
 		let result = wtcsv.get_record_by_id_vec("ussr_mpk_201k_2");
 
@@ -224,7 +221,7 @@ mod tests {
 	#[test]
 	fn get_bad_record_vec() {
 		let file = fs::read_to_string("lang/_common_languages.csv").unwrap();
-		let wtcsv = WTCSV::new_from_file(file.clone(), "_common_languages").unwrap();
+		let wtcsv = WTCSV::new_from_file(&file.clone(), "_common_languages").unwrap();
 
 		assert_eq!(true, wtcsv.get_record_by_id_vec("country_fake").is_err())
 	}
@@ -232,7 +229,7 @@ mod tests {
 	#[test]
 	fn get_id_by_parameter() {
 		let file = fs::read_to_string("lang/units.csv").unwrap();
-		let wtcsv = WTCSV::new_from_file(file.clone(), "units").unwrap();
+		let wtcsv = WTCSV::new_from_file(&file.clone(), "units").unwrap();
 
 		let mut result = wtcsv.get_ids_by_parameter("Flusi 1");
 

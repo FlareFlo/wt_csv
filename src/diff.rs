@@ -40,7 +40,7 @@ mod tests {
 	#[test]
 	fn expect_diff() {
 		let init = fs::read_to_string("lang/_common_languages.csv").unwrap();
-		let init = WTCSV::new_from_file(init, "_common_languages").unwrap();
+		let init = WTCSV::new_from_file(&init, "_common_languages").unwrap();
 
 		let mut diff = init.clone();
 		diff.edit_record_by_id("country_britain", "tea").unwrap();
@@ -52,7 +52,7 @@ mod tests {
 	#[test]
 	fn expect_diff_invert() {
 		let init = fs::read_to_string("lang/_common_languages.csv").unwrap();
-		let init = WTCSV::new_from_file(init, "_common_languages").unwrap();
+		let init = WTCSV::new_from_file(&init, "_common_languages").unwrap();
 
 		let mut diff = init.clone();
 		diff.edit_record_by_id("country_britain", "tea").unwrap();
