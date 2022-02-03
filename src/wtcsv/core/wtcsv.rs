@@ -49,7 +49,7 @@ impl WTCSV {
 			// Subtracting one as there is always one less delimiter compared to headers
 			if delim_count == header.len - 1 && (char == RECORD_SEP) { // End of record is indicated by \n as CLRF terminates with that
 				// Cropping away the last two chars as they are CLRF - \r\n chars
-				let new_buffer = buffer.clone()[..buffer.len() - if crlf {2 } else {1}].to_owned();
+				let new_buffer = buffer.clone()[..buffer.len() - if crlf { 2 } else { 1 }].to_owned();
 				records.push(new_buffer);
 				buffer.clear();
 				delim_count = 0;
@@ -148,7 +148,7 @@ impl WTCSV {
 	}
 
 	/// Returns list of ids matching provided case
-	/// Utilizing a looped hashmap this function should run at O(N * Nr) Nr being the amount of attributes[
+	/// Utilizing a looped hashmap this function should run at O(N * Nr) Nr being the amount of attributes
 	#[must_use]
 	pub fn get_ids_by_parameter(&self, parameter: &str) -> Vec<String> {
 		let mut map = HashMap::new();
@@ -156,13 +156,37 @@ impl WTCSV {
 		for record in &self.records {
 			for item in &record.items {
 				if map.get(item).is_some() && item == parameter {
-					known.insert(record.items[0].clone());
+					known.insert(record.items[0].as_str());
 				}
 				map.insert(item, &record.items[0]);
 			}
 		}
-		known.insert((*map.get(&parameter.to_string()).unwrap()).to_string());
-		let mut result: Vec<String> = known.iter().map(std::clone::Clone::clone).collect();
+		if let Some(item) = map.get(&parameter.to_string()) {
+			known.insert(item);
+		}
+		let mut result: Vec<String> = known.iter().map(std::string::ToString::to_string).collect();
+		result.sort();
+		result
+	}
+	/// Equal as `get_ids_by_parameter` with the exception that it takes an (empty) buffer to greatly speed up repeated calls to this function
+	pub fn get_buffered_ids_by_parameter(&self, parameter: &str, buffer: &mut HashMap<String, String>) -> Vec<String> {
+		if buffer.is_empty() {
+			for record in &self.records {
+				for item in &record.items {
+					buffer.insert(item.clone(), record.items[0].clone());
+				}
+			}
+		}
+		let mut known = HashSet::new();
+		for record in &self.records {
+			for item in &record.items {
+				if buffer.get(item).is_some() && item == parameter {
+					known.insert(record.items[0].as_str());
+				}
+			}
+		}
+		known.insert(buffer.get(&parameter.to_string()).unwrap());
+		let mut result: Vec<String> = known.iter().map(std::string::ToString::to_string).collect();
 		result.sort();
 		result
 	}
@@ -171,6 +195,7 @@ impl WTCSV {
 #[cfg(test)]
 #[allow(unused_variables, deprecated)]
 mod tests {
+	use std::collections::HashMap;
 	#[allow(unused_imports)]
 	use std::fs;
 
@@ -235,5 +260,20 @@ mod tests {
 
 		result.sort();
 		assert_eq!(["germ_rdm242_1", "germ_rdm242_shop"], result.as_slice());
+	}
+
+	#[test]
+	fn get_buffered_id_by_parameter() {
+		let file = fs::read_to_string("lang/units.csv").unwrap();
+		let wtcsv = WTCSV::new_from_file(&file.clone(), "units").unwrap();
+
+		let mut buffer = HashMap::new();
+		let mut result = wtcsv.get_buffered_ids_by_parameter("Flusi 1", &mut buffer);
+		let mut other_result = wtcsv.get_buffered_ids_by_parameter("M8A1", &mut buffer);
+
+		result.sort();
+		other_result.sort();
+		assert_eq!(["germ_rdm242_1", "germ_rdm242_shop"], result.as_slice());
+		assert_eq!(["us_m8a1_1", "us_m8a1_shop"], other_result.as_slice());
 	}
 }
